@@ -1,0 +1,10 @@
+﻿V1.1.1
+1. fix ID not update problem; 
+2. fix human height(VzPeopleInfo.worldPostion.z)  
+
+V1.1.0
+1. add DualCameraSample
+2. add worldPostion in VzPeopleInfo
+
+V1.0.0
+1.init Base
