@@ -82,8 +82,8 @@ enum InOutState
 };
 
 
-struct Device;
-typedef Device* VzDeviceHandler;
+struct PeopleCountDevice;
+typedef PeopleCountDevice* PeopleCountDeviceHandler;
 
 #pragma pack (push, 1)
 
@@ -96,12 +96,23 @@ typedef struct
     PsTimeStamp    timestamp;
 }VzPCFrame;
 
+
+typedef struct {
+    uint16_t x;
+    uint16_t y;
+}Point2uint16;
+
+typedef struct{
+    int16_t x;
+    int16_t y;
+    int16_t z;
+}Point3int16;
+
 typedef struct
 {
     uint32_t id;
-	uint16_t x;                 //Pixel coordinates of the center point of the head of the person identified from the image
-    uint16_t y;                 //Pixel coordinates of the center point of the head of the person identified from the image
-    uint16_t height;
+    Point2uint16 pixelPostion;  //Pixel coordinates of the center point of the head of the person identified from the image
+    Point3int16 worldPostion;   //Three dimensional coordinates of the center point of the head of the person identified from the image in the world coordinate system 
 	uint16_t dwellTime;         //The time a person identified from the image since detected(second)
 	uint8_t state;         
     uint8_t reserved[3];
