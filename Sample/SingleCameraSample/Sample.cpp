@@ -120,7 +120,7 @@ void ShowMenu(void)
 
 bool InitDevice()
 {
-    VzReturnStatus status = Vz_PCOpenDevice(nullptr, &g_deviceHandle);
+    VzReturnStatus status = Vz_PCOpenDevice("", &g_deviceHandle);
     if (status != VzReturnStatus::VzRetOK)
     {
         if (VzReturnStatus::VzRetNoDeviceConnected == status)
@@ -208,17 +208,27 @@ void ShowInfo(const VzPeopleInfoCount& peopleInfoCount)
         {
 			Point headpoint = Point(peopleInfoCount.peopleInfo[i].pixelPostion.x, peopleInfoCount.peopleInfo[i].pixelPostion.y);
 
-            int tmpx = headpoint.x - 25;
-            int tmpy = headpoint.y - 25;
-            tmpx = (tmpx < 0) ? 0 : tmpx;
-            tmpy = (tmpy < 0) ? 0 : tmpy;
-            Point LeftPoint = Point(tmpx, tmpy);
+            memset(temp, BUFLEN, 0);
+            snprintf(temp, BUFLEN, "ID:%X ", peopleInfoCount.peopleInfo[i].id);
+            cv::putText(img, temp,
+                cv::Point(headpoint.x + 12, headpoint.y - 15),
+                cv::FONT_HERSHEY_SIMPLEX,
+                0.6,
+                Scalar(0, 0, 255),
+                1,
+                9);
 
-            tmpx = headpoint.x + 25;
-            tmpy = headpoint.y + 25;
-            tmpx = (tmpx > img.cols) ? (img.cols) : tmpx;
-            tmpy = (tmpy > img.rows) ? (img.rows) : tmpy;
-            Point RightPoint = Point(tmpx, tmpy);
+            memset(temp, BUFLEN, 0);
+            snprintf(temp, BUFLEN, "H:%d", peopleInfoCount.peopleInfo[i].worldPostion.z);
+
+            cv::putText(img, temp,
+                cv::Point(headpoint.x + 12, headpoint.y - 35),
+                cv::FONT_HERSHEY_SIMPLEX,
+                0.6,
+                Scalar(0, 0, 255),
+                1,
+                9);
+
             cv::circle(img, headpoint, 11, Scalar(255, 255, 255), -1, 8);
         }
         

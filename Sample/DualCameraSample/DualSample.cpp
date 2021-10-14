@@ -168,19 +168,6 @@ void ShowInfo(const VzPeopleInfoCount_& peopleInfoCount)
         for (int i = 0; i < peopleInfoCount.entrance.validPeopleCount; i++)
         {
 			Point headpoint = Point(peopleInfoCount.entrance.peopleInfo[i].pixelPostion.x, peopleInfoCount.entrance.peopleInfo[i].pixelPostion.y);
-
-            int tmpx = headpoint.x - 25;
-            int tmpy = headpoint.y - 25;
-            tmpx = (tmpx < 0) ? 0 : tmpx;
-            tmpy = (tmpy < 0) ? 0 : tmpy;
-            Point LeftPoint = Point(tmpx, tmpy);
-
-            tmpx = headpoint.x + 25;
-            tmpy = headpoint.y + 25;
-            tmpx = (tmpx > entranceImg.cols) ? (entranceImg.cols) : tmpx;
-            tmpy = (tmpy > entranceImg.rows) ? (entranceImg.rows) : tmpy;
-            Point RightPoint = Point(tmpx, tmpy);
-
             cv::circle(entranceImg, headpoint, 11, Scalar(255, 255, 255), -1, 8);
         }
 
@@ -209,19 +196,6 @@ void ShowInfo(const VzPeopleInfoCount_& peopleInfoCount)
 		for (int i = 0; i < peopleInfoCount.exit.validPeopleCount; i++)
 		{
 			Point headpoint = Point(peopleInfoCount.exit.peopleInfo[i].pixelPostion.x, peopleInfoCount.exit.peopleInfo[i].pixelPostion.y);
-            
-            int tmpx = headpoint.x - 25;
-            int tmpy = headpoint.y - 25;
-            tmpx = (tmpx < 0) ? 0 : tmpx;
-            tmpy = (tmpy < 0) ? 0 : tmpy;
-            Point LeftPoint = Point(tmpx, tmpy);
-
-            tmpx = headpoint.x + 25;
-            tmpy = headpoint.y + 25;
-            tmpx = (tmpx > exitImg.cols) ? (exitImg.cols) : tmpx;
-            tmpy = (tmpy > exitImg.rows) ? (exitImg.rows) : tmpy;
-            Point RightPoint = Point(tmpx, tmpy);
-
             cv::circle(exitImg, headpoint, 11, Scalar(255, 255, 255), -1, 8);
 		}
 

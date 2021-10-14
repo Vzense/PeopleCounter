@@ -274,86 +274,89 @@ bool DualCamera::IsSync(const VzPeopleInfoCount& src, const VzPeopleInfoCount& d
     return ret;
 }
 
-void DualCamera::FusionPeopleInfo(VzPeopleInfoCount entrance, VzPeopleInfoCount exit, vector<VzPeopleInfo>& fusion)
+void DualCamera::FusionPeopleInfo(const VzPeopleInfoCount& entrance, const VzPeopleInfoCount& exit, vector<VzPeopleInfo>& fusion)
 {
-    vector<VzPeopleInfo*> vectorEntranceToDo;
-    vector<VzPeopleInfo*> vectorExitToDo;
+    vector<VzPeopleInfo> vectorEntranceToDo;
+    vector<VzPeopleInfo> vectorExitToDo;
 
     const int entranceCritical = IMG_H;
 
+    VzPeopleInfo info = {0};
     for (size_t i = 0; i < entrance.validPeopleCount; i++)
     {
-        entrance.peopleInfo[i].worldPostion.x -= HALFDISTANCEOFDEVICE;
+        info = entrance.peopleInfo[i];
+        info.worldPostion.x -= HALFDISTANCEOFDEVICE;
 
-        if (entrance.peopleInfo[i].pixelPostion.x < entranceCritical)
+        if (info.pixelPostion.x < entranceCritical)
         {
-            fusion.push_back(entrance.peopleInfo[i]);
+            fusion.push_back(info);
         }
         else
         {
-            vectorEntranceToDo.push_back(&entrance.peopleInfo[i]);
+            vectorEntranceToDo.push_back(info);
         }
     }
 
     for (size_t i = 0; i < exit.validPeopleCount; i++)
     {
-        exit.peopleInfo[i].pixelPostion.x += IMG_W;
-        exit.peopleInfo[i].worldPostion.x += HALFDISTANCEOFDEVICE;
+        info = exit.peopleInfo[i];
+        info.pixelPostion.x += IMG_W;
+        info.worldPostion.x += HALFDISTANCEOFDEVICE;
 
-        if (exit.peopleInfo[i].pixelPostion.x > (IMG_W + entranceCritical))
+        if (info.pixelPostion.x > (IMG_W + entranceCritical))
         {
-            fusion.push_back(exit.peopleInfo[i]);
+            fusion.push_back(info);
         }
         else
         {
-            vectorExitToDo.push_back(&exit.peopleInfo[i]);
+            vectorExitToDo.push_back(info);
         }
     }
 
     if (0 == vectorEntranceToDo.size() || 0 == vectorExitToDo.size())
     {
-        for (vector<VzPeopleInfo*>::iterator i = vectorEntranceToDo.begin(); i != vectorEntranceToDo.end(); i++)
+        for (vector<VzPeopleInfo>::iterator i = vectorEntranceToDo.begin(); i != vectorEntranceToDo.end(); i++)
         {
-            fusion.push_back(**i);
+            fusion.push_back(*i);
         }
 
-        for (vector<VzPeopleInfo*>::iterator i = vectorExitToDo.begin(); i != vectorExitToDo.end(); i++)
+        for (vector<VzPeopleInfo>::iterator i = vectorExitToDo.begin(); i != vectorExitToDo.end(); i++)
         {
-            fusion.push_back(**i);
+            fusion.push_back(*i);
         }
     }
     else
     {
         static const int fusionPeopleDistanceMax = 250;
 
-        for (vector<VzPeopleInfo*>::iterator i = vectorEntranceToDo.begin(); i != vectorEntranceToDo.end(); ++i)
+        for (vector<VzPeopleInfo>::iterator i = vectorEntranceToDo.begin(); i != vectorEntranceToDo.end(); ++i)
         {
-            VzPeopleInfo* pNew = nullptr;
-            for (vector<VzPeopleInfo*>::iterator j = vectorExitToDo.begin(); j != vectorExitToDo.end(); j++)
+            vector<VzPeopleInfo>::iterator pNew = vectorEntranceToDo.end();
+            for (vector<VzPeopleInfo>::iterator j = vectorExitToDo.begin(); j != vectorExitToDo.end(); j++)
             {
-                int distance = cv::norm(cv::Point2f((*i)->worldPostion.x, (*i)->worldPostion.y) - cv::Point2f((*j)->worldPostion.x, (*j)->worldPostion.y));
+                int distance = cv::norm(cv::Point2f(i->worldPostion.x, i->worldPostion.y) - cv::Point2f(j->worldPostion.x, j->worldPostion.y));
 
                 if (fusionPeopleDistanceMax > distance)
                 {
-                    if (abs((*i)->worldPostion.z - (*j)->worldPostion.z) < 50)
+                    if (abs(i->worldPostion.z - j->worldPostion.z) < 50)
                     {
-                        (*i)->pixelPostion.x = ((*i)->pixelPostion.x + (*j)->pixelPostion.x) / 2;
-                        (*i)->pixelPostion.y = ((*i)->pixelPostion.y + (*j)->pixelPostion.y) / 2;
-                        (*i)->worldPostion.x = ((*i)->worldPostion.x + (*j)->worldPostion.x) / 2;
-                        (*i)->worldPostion.y = ((*i)->worldPostion.y + (*j)->worldPostion.y) / 2;
-                        (*i)->worldPostion.z = ((*i)->worldPostion.z + (*j)->worldPostion.z) / 2;
+                        i->pixelPostion.x = (i->pixelPostion.x + j->pixelPostion.x) / 2;
+                        i->pixelPostion.y = (i->pixelPostion.y + j->pixelPostion.y) / 2;
+                        i->worldPostion.x = (i->worldPostion.x + j->worldPostion.x) / 2;
+                        i->worldPostion.y = (i->worldPostion.y + j->worldPostion.y) / 2;
+                        i->worldPostion.z = (i->worldPostion.z + j->worldPostion.z) / 2;
 
-                        pNew = *i;
+                        pNew = i;
                     }
                     else
                     {
-                        if ((*i)->worldPostion.z < (*j)->worldPostion.z)
+                        if (i->worldPostion.z > j->worldPostion.z)
                         {
-                            pNew = *i;
+                            pNew = i;
                         }
                         else
                         {
-                            pNew = *j;
+                            pNew = j;
                         }
                     }
 
@@ -362,17 +365,17 @@ void DualCamera::FusionPeopleInfo(VzPeopleInfoCount entrance, VzPeopleInfoCount 
                 }
             }
 
-            if (nullptr == pNew)
+            if (vectorEntranceToDo.end() == pNew)
             {
-                pNew = *i;
+                pNew = i;
             }
 
             fusion.push_back(*pNew);
         }
 
-        for (vector<VzPeopleInfo*>::iterator i = vectorExitToDo.begin(); i != vectorExitToDo.end(); i++)
+        for (vector<VzPeopleInfo>::iterator i = vectorExitToDo.begin(); i != vectorExitToDo.end(); i++)
         {
-            fusion.push_back(**i);
+            fusion.push_back(*i);
         }
     }
 }

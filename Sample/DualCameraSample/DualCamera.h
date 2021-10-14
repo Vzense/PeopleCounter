@@ -54,9 +54,8 @@ public:
 private:
 	
 	bool IsSync(const VzPeopleInfoCount& src, const VzPeopleInfoCount& dest);
-	void FusionPeopleInfo(VzPeopleInfoCount entrance, VzPeopleInfoCount exit, vector<VzPeopleInfo>& fusion);
+	void FusionPeopleInfo(const VzPeopleInfoCount& entrance, const VzPeopleInfoCount& exit, vector<VzPeopleInfo>& fusion);
 	void UpdataContinueInfo(vector<VzPeopleInfoAndCount>& continuePeopleInfoV, vector<VzPeopleInfo> newPeopleInfoV);
-	void JudgePeopleInOut(VzPeopleInfo& current, VzPeopleInfoAndCount& track);
 	uint16_t GetMaxLostCount(cv::Point2i& latestValidPos);
 	uint32_t RequestID();
 	

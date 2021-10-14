@@ -112,7 +112,11 @@ typedef struct
 {
     uint32_t id;
     Point2uint16 pixelPostion;  //Pixel coordinates of the center point of the head of the person identified from the image
-    Point3int16 worldPostion;   //Three dimensional coordinates of the center point of the head of the person identified from the image in the world coordinate system 
+    Point3int16 worldPostion;   //Three dimensional coordinates of the center point of the head of the person identified from the image in the world coordinate system
+                                //The X-axis goes from the left side of the image to the right
+                                //The Y - axis goes from the top of the image to the bottom
+                                //The Z axis points to the camera from the ground
+                                //The coordinate origin is located at the vertical projection from the center of the camera to the ground
 	uint16_t dwellTime;         //The time a person identified from the image since detected(second)
 	uint8_t state;         
     uint8_t reserved[3];
