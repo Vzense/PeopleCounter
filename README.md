@@ -10,7 +10,7 @@
 
    a.Please refer to the picture below to fix the camera position
 
-   ![dualCameraInstall](.\Assets\dualCameraInstall.png)
+   ![dualCameraInstall](https://github.com/Vzense/PeopleCounter/blob/master/Assets/dualCameraInstall.png)
 
    b.Please write the camera SN to the CameraAlias field of Alg_PCConfig_Entrance.ini and Alg_PCConfig_Exit.ini respectively.
 
