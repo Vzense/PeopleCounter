@@ -331,7 +331,7 @@ void DualCamera::FusionPeopleInfo(const VzPeopleInfoCount& entrance, const VzPeo
 
         for (vector<VzPeopleInfo>::iterator i = vectorEntranceToDo.begin(); i != vectorEntranceToDo.end(); ++i)
         {
-            vector<VzPeopleInfo>::iterator pNew = vectorEntranceToDo.end();
+            VzPeopleInfo* pNew = nullptr;
             for (vector<VzPeopleInfo>::iterator j = vectorExitToDo.begin(); j != vectorExitToDo.end(); j++)
             {
                 int distance = cv::norm(cv::Point2f(i->worldPostion.x, i->worldPostion.y) - cv::Point2f(j->worldPostion.x, j->worldPostion.y));
@@ -346,17 +346,17 @@ void DualCamera::FusionPeopleInfo(const VzPeopleInfoCount& entrance, const VzPeo
                         i->worldPostion.y = (i->worldPostion.y + j->worldPostion.y) / 2;
                         i->worldPostion.z = (i->worldPostion.z + j->worldPostion.z) / 2;
 
-                        pNew = i;
+                        pNew = &(*i);
                     }
                     else
                     {
                         if (i->worldPostion.z > j->worldPostion.z)
                         {
-                            pNew = i;
+                            pNew = &(*i);
                         }
                         else
                         {
-                            pNew = j;
+                            pNew = &(*j);
                         }
                     }
 
@@ -365,9 +365,9 @@ void DualCamera::FusionPeopleInfo(const VzPeopleInfoCount& entrance, const VzPeo
                 }
             }
 
-            if (vectorEntranceToDo.end() == pNew)
+            if (nullptr == pNew)
             {
-                pNew = i;
+                pNew = &(*i);
             }
 
             fusion.push_back(*pNew);
