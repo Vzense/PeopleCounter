@@ -279,7 +279,7 @@ void DualCamera::FusionPeopleInfo(const VzPeopleInfoCount& entrance, const VzPeo
     vector<VzPeopleInfo> vectorEntranceToDo;
     vector<VzPeopleInfo> vectorExitToDo;
 
-    const int entranceCritical = IMG_H;
+    static const int CriticalValue = IMG_W / 4;
 
     VzPeopleInfo info = {0};
     for (size_t i = 0; i < entrance.validPeopleCount; i++)
@@ -287,7 +287,7 @@ void DualCamera::FusionPeopleInfo(const VzPeopleInfoCount& entrance, const VzPeo
         info = entrance.peopleInfo[i];
         info.worldPostion.x -= HALFDISTANCEOFDEVICE;
 
-        if (info.pixelPostion.x < entranceCritical)
+        if (info.pixelPostion.x < (IMG_W - CriticalValue))
         {
             fusion.push_back(info);
         }
@@ -303,7 +303,7 @@ void DualCamera::FusionPeopleInfo(const VzPeopleInfoCount& entrance, const VzPeo
         info.pixelPostion.x += IMG_W;
         info.worldPostion.x += HALFDISTANCEOFDEVICE;
 
-        if (info.pixelPostion.x > (IMG_W + entranceCritical))
+        if (info.pixelPostion.x > (IMG_W + CriticalValue))
         {
             fusion.push_back(info);
         }
@@ -327,17 +327,20 @@ void DualCamera::FusionPeopleInfo(const VzPeopleInfoCount& entrance, const VzPeo
     }
     else
     {
-        static const int fusionPeopleDistanceMax = 250;
+        static const int FusionPeopleDistanceMax = 250;
 
         for (vector<VzPeopleInfo>::iterator i = vectorEntranceToDo.begin(); i != vectorEntranceToDo.end(); ++i)
         {
-            VzPeopleInfo* pNew = nullptr;
+            bool isFoundfusionPeople = false;
             for (vector<VzPeopleInfo>::iterator j = vectorExitToDo.begin(); j != vectorExitToDo.end(); j++)
             {
                 int distance = cv::norm(cv::Point2f(i->worldPostion.x, i->worldPostion.y) - cv::Point2f(j->worldPostion.x, j->worldPostion.y));
 
-                if (fusionPeopleDistanceMax > distance)
+                if (FusionPeopleDistanceMax > distance)
                 {
+                    isFoundfusionPeople = true;
+                    VzPeopleInfo* pNew = nullptr;
+
                     if (abs(i->worldPostion.z - j->worldPostion.z) < 50)
                     {
                         i->pixelPostion.x = (i->pixelPostion.x + j->pixelPostion.x) / 2;
@@ -360,17 +363,16 @@ void DualCamera::FusionPeopleInfo(const VzPeopleInfoCount& entrance, const VzPeo
                         }
                     }
 
+                    fusion.push_back(*pNew);
                     vectorExitToDo.erase(j);
                     break;
                 }
             }
 
-            if (nullptr == pNew)
+            if (false == isFoundfusionPeople)
             {
-                pNew = &(*i);
+                fusion.push_back(*i);
             }
-
-            fusion.push_back(*pNew);
         }
 
         for (vector<VzPeopleInfo>::iterator i = vectorExitToDo.begin(); i != vectorExitToDo.end(); i++)
@@ -382,7 +384,7 @@ void DualCamera::FusionPeopleInfo(const VzPeopleInfoCount& entrance, const VzPeo
 
 void DualCamera::UpdataContinueInfo(vector<VzPeopleInfoAndCount>& continuePeopleInfoV, vector<VzPeopleInfo> newPeopleInfoV)
 {
-    static const int cotiunedDistanceMax = 300;
+    static const int cotiunedDistanceMax = 350;
 
     for (vector<VzPeopleInfoAndCount>::iterator i = continuePeopleInfoV.begin(); i != continuePeopleInfoV.end(); )
     {
@@ -480,7 +482,7 @@ uint16_t DualCamera::GetMaxLostCount(cv::Point2i& latestValidPos)
 
     if ((IMG_W - BUFF) < latestValidPos.x && latestValidPos.x < (IMG_W + BUFF))
     {
-        maxLostCount = 15 * 2;
+        maxLostCount = 15 * 3;
     }
 
     return maxLostCount;

@@ -1,4 +1,8 @@
-﻿V1.1.1
+﻿V1.1.2
+1.optimization of dual camera recognition result fusion
+2.reduce the false identification rate of hands and bags
+
+V1.1.1
 1. fix ID not update problem; 
 2. fix human height(VzPeopleInfo.worldPostion.z)  
 
