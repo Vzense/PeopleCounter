@@ -118,8 +118,9 @@ typedef struct
                                 //The Z axis points to the camera from the ground
                                 //The coordinate origin is located at the vertical projection from the center of the camera to the ground
 	uint16_t dwellTime;         //The time a person identified from the image since detected(second)
-	uint8_t state;         
-    uint8_t reserved[3];
+	uint8_t state;
+    uint8_t confidence;
+    uint8_t reserved[2];
     
 } VzPeopleInfo;
 

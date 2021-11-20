@@ -2,6 +2,7 @@
 #include <time.h>
 
 #include "DualCamera.h"
+#include "IniConfig.h"
 
 static const int DISTANCEOFDEVICE = 1200;
 static const int HALFDISTANCEOFDEVICE = 1200 / 2;
@@ -27,8 +28,15 @@ DualCamera::DualCamera():
     mEntranceInfo(),
     mExitInfo(),
     mEntranceImgBuf(new uint8_t[IMG_W * IMG_H * 2]),
-    mExitImgBuf(new uint8_t[IMG_W * IMG_H * 2])
+    mExitImgBuf(new uint8_t[IMG_W * IMG_H * 2]),
+    mMoveConfidence(30)
 {
+    IniConfig configINI;
+    if (1 == configINI.ReadINI("./Alg_PCConfig_Entrance.ini"))
+    {
+        mMoveConfidence = configINI.GetInt("ALG", "MoveConfidence", 30);;
+    }
+    
     Vz_PCInitialize();
 }
 
@@ -127,10 +135,14 @@ bool DualCamera::GetPeopleInfoCount(VzPeopleInfoCount_& peopleInfoCount)
         cout << "mEntranceIsUpdate:" << mEntranceIsUpdate << ", mExitIsUpdate:" << mExitIsUpdate << endl;
     }
 
-    for (vector<VzPeopleInfoAndCount>::const_iterator i = mContinuePeopleV.cbegin(); i != mContinuePeopleV.cend() && (i - mContinuePeopleV.cbegin() < 6); i++)
+    peopleInfoCount.fusion.validPeopleCount = 0;
+    memset(peopleInfoCount.fusion.peopleInfo, 0, sizeof(peopleInfoCount.fusion.peopleInfo));
+    for (vector<VzPeopleInfoAndCount>::const_iterator i = mContinuePeopleV.cbegin(); i != mContinuePeopleV.cend() && (i - mContinuePeopleV.cbegin() < (sizeof(peopleInfoCount.fusion.peopleInfo)/sizeof(peopleInfoCount.fusion.peopleInfo[0]))); i++)
     {
-        peopleInfoCount.fusion.validPeopleCount++;
-        peopleInfoCount.fusion.peopleInfo[i - mContinuePeopleV.cbegin()] = i->people;
+        if (i->people.confidence > mMoveConfidence)
+        {
+            peopleInfoCount.fusion.peopleInfo[peopleInfoCount.fusion.validPeopleCount++] = i->people;
+        }
     }
 
     peopleInfoCount.fusion.inCount = peopleInfoCount.entrance.inCount;
@@ -348,7 +360,7 @@ void DualCamera::FusionPeopleInfo(const VzPeopleInfoCount& entrance, const VzPeo
                         i->worldPostion.x = (i->worldPostion.x + j->worldPostion.x) / 2;
                         i->worldPostion.y = (i->worldPostion.y + j->worldPostion.y) / 2;
                         i->worldPostion.z = (i->worldPostion.z + j->worldPostion.z) / 2;
-
+                        i->confidence = (i->confidence > j->confidence) ? i->confidence : j->confidence;
                         pNew = &(*i);
                     }
                     else
@@ -361,6 +373,7 @@ void DualCamera::FusionPeopleInfo(const VzPeopleInfoCount& entrance, const VzPeo
                         {
                             pNew = &(*j);
                         }
+                        pNew->confidence = (i->confidence > j->confidence) ? i->confidence : j->confidence;
                     }
 
                     fusion.push_back(*pNew);
@@ -384,11 +397,11 @@ void DualCamera::FusionPeopleInfo(const VzPeopleInfoCount& entrance, const VzPeo
 
 void DualCamera::UpdataContinueInfo(vector<VzPeopleInfoAndCount>& continuePeopleInfoV, vector<VzPeopleInfo> newPeopleInfoV)
 {
-    static const int cotiunedDistanceMax = 350;
+    static const int cotiunedDistanceMax = 300;
 
     for (vector<VzPeopleInfoAndCount>::iterator i = continuePeopleInfoV.begin(); i != continuePeopleInfoV.end(); )
     {
-        int minDistance = 0x0FFFFFFF;
+        int minDistance = INT_MAX;
 
         vector<VzPeopleInfo>::iterator findIterator = newPeopleInfoV.end();
         for (vector<VzPeopleInfo>::iterator j = newPeopleInfoV.begin(); j != newPeopleInfoV.end(); j++)
@@ -407,6 +420,11 @@ void DualCamera::UpdataContinueInfo(vector<VzPeopleInfoAndCount>& continuePeople
             {
                 i->continueCount++;
                 i->missCount = 0;
+            }
+            
+            if (i->people.confidence < findIterator->confidence)
+            {
+                i->people.confidence = findIterator->confidence;
             }
             
             i->people.pixelPostion.x = (i->people.pixelPostion.x + findIterator->pixelPostion.x) / 2;

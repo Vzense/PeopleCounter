@@ -164,9 +164,11 @@
   <ItemGroup>
     <ClCompile Include="DualCamera.cpp" />
     <ClCompile Include="DualSample.cpp" />
+    <ClCompile Include="IniConfig.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DualCamera.h" />
+    <ClInclude Include="IniConfig.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

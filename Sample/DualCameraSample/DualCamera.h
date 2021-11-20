@@ -82,5 +82,5 @@ private:
 
 	uint8_t* mEntranceImgBuf;
 	uint8_t* mExitImgBuf;
-
+    int mMoveConfidence;
 };
