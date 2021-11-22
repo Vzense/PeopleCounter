@@ -7,12 +7,6 @@
 static const int DISTANCEOFDEVICE = 1200;
 static const int HALFDISTANCEOFDEVICE = 1200 / 2;
 
-struct ThreadFuncParams {
-    DualCamera& dual;
-    PeopleCountDeviceHandler device;
-    VzPeopleInfoCount& info;
-};
-
 DualCamera::DualCamera():
     mEntrance(nullptr),
     mExit(nullptr),
@@ -87,12 +81,10 @@ bool DualCamera::OpenDevice()
     }
 
     mIsRuning = true;
-    ThreadFuncParams paramsEntrance = { *this ,mEntrance, mEntranceInfo };
 
-    mThdEntrance = thread(ThreadFunc, paramsEntrance);
+    mThdEntrance = thread(&DualCamera::ThreadFunc, this, mEntrance);
 
-    ThreadFuncParams paramsExit = { *this ,mExit, mExitInfo };
-    mThdExit = thread(ThreadFunc, paramsExit);
+    mThdExit = thread(&DualCamera::ThreadFunc, this, mExit);
 
     Vz_PCSetShowImg(mEntrance, mIsShowImg);
     Vz_PCSetShowImg(mExit, mIsShowImg);
@@ -137,7 +129,7 @@ bool DualCamera::GetPeopleInfoCount(VzPeopleInfoCount_& peopleInfoCount)
 
     peopleInfoCount.fusion.validPeopleCount = 0;
     memset(peopleInfoCount.fusion.peopleInfo, 0, sizeof(peopleInfoCount.fusion.peopleInfo));
-    for (vector<VzPeopleInfoAndCount>::const_iterator i = mContinuePeopleV.cbegin(); i != mContinuePeopleV.cend() && (i - mContinuePeopleV.cbegin() < (sizeof(peopleInfoCount.fusion.peopleInfo)/sizeof(peopleInfoCount.fusion.peopleInfo[0]))); i++)
+    for (vector<VzPeopleInfoAndCount>::const_iterator i = mContinuePeopleV.cbegin(); i != mContinuePeopleV.cend() && (peopleInfoCount.fusion.validPeopleCount < (sizeof(peopleInfoCount.fusion.peopleInfo)/sizeof(peopleInfoCount.fusion.peopleInfo[0]))); i++)
     {
         if (i->people.confidence > mMoveConfidence)
         {
@@ -170,16 +162,16 @@ bool DualCamera::SetSaveOfflineDataState(bool isSavingImg)
     return false;
 }
 
-void DualCamera::ThreadFunc(ThreadFuncParams& params)
+void DualCamera::ThreadFunc(const PeopleCountDeviceHandler device)
 {
     VzPeopleInfoCount infoCount = { 0 };
-    while (true == params.dual.mIsRuning)
+    while (true == mIsRuning)
     {
         memset(&infoCount, 0, sizeof(infoCount));
-        VzReturnStatus result = Vz_PCGetPeopleInfoCount(params.device, &infoCount);
+        VzReturnStatus result = Vz_PCGetPeopleInfoCount(device, &infoCount);
         if (VzReturnStatus::VzRetOK == result)
         {
-            params.dual.UpdataPeopleInfoCallback(infoCount, params.device);
+            UpdataPeopleInfoCallback(infoCount, device);
         }
         else if (VzReturnStatus::VzRetCalibrateFailed == result)
         {
@@ -493,7 +485,7 @@ void DualCamera::UpdataContinueInfo(vector<VzPeopleInfoAndCount>& continuePeople
     }
 }
 
-uint16_t DualCamera::GetMaxLostCount(cv::Point2i& latestValidPos)
+uint16_t DualCamera::GetMaxLostCount(const cv::Point2i& latestValidPos)
 {
     uint16_t maxLostCount = 0;
     static const uint64_t BUFF = 40;

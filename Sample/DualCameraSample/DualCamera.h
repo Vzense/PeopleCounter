@@ -48,7 +48,7 @@ public:
 	bool GetPeopleInfoCount(VzPeopleInfoCount_& peopleInfoCount);
 	bool SetShowImg(bool isShow);
 	bool SetSaveOfflineDataState(bool isSavingImg);
-	static void ThreadFunc(ThreadFuncParams& params);
+	void ThreadFunc(const PeopleCountDeviceHandler device);
 	void UpdataPeopleInfoCallback(const VzPeopleInfoCount& peopleInfoCount, const PeopleCountDeviceHandler peopleCount);
 
 private:
@@ -56,7 +56,7 @@ private:
 	bool IsSync(const VzPeopleInfoCount& src, const VzPeopleInfoCount& dest);
 	void FusionPeopleInfo(const VzPeopleInfoCount& entrance, const VzPeopleInfoCount& exit, vector<VzPeopleInfo>& fusion);
 	void UpdataContinueInfo(vector<VzPeopleInfoAndCount>& continuePeopleInfoV, vector<VzPeopleInfo> newPeopleInfoV);
-	uint16_t GetMaxLostCount(cv::Point2i& latestValidPos);
+	uint16_t GetMaxLostCount(const cv::Point2i& latestValidPos);
 	uint32_t RequestID();
 	
 
