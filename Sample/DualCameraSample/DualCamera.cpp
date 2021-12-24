@@ -2,10 +2,12 @@
 #include <time.h>
 
 #include "DualCamera.h"
-#include "IniConfig.h"
+#include "JsonConfig.h"
 
 static const int DISTANCEOFDEVICE = 1200;
 static const int HALFDISTANCEOFDEVICE = 1200 / 2;
+
+int GetMoveConfidenceFromConfig();
 
 DualCamera::DualCamera():
     mEntrance(nullptr),
@@ -23,14 +25,8 @@ DualCamera::DualCamera():
     mExitInfo(),
     mEntranceImgBuf(new uint8_t[IMG_W * IMG_H * 2]),
     mExitImgBuf(new uint8_t[IMG_W * IMG_H * 2]),
-    mMoveConfidence(30)
+    mMoveConfidence(GetMoveConfidenceFromConfig())
 {
-    IniConfig configINI;
-    if (1 == configINI.ReadINI("./Alg_PCConfig_Entrance.ini"))
-    {
-        mMoveConfidence = configINI.GetInt("ALG", "MoveConfidence", 30);;
-    }
-    
     Vz_PCInitialize();
 }
 
@@ -52,7 +48,7 @@ DualCamera::~DualCamera()
 
 bool DualCamera::OpenDevice()
 {
-    VzReturnStatus status = Vz_PCOpenDevice("./Alg_PCConfig_Entrance.ini", &mEntrance);
+    VzReturnStatus status = Vz_PCOpenDevice("./Alg_PCConfig_Entrance.json", &mEntrance);
     if (status != VzReturnStatus::VzRetOK)
     {
         if (VzReturnStatus::VzRetNoDeviceConnected == status)
@@ -66,7 +62,7 @@ bool DualCamera::OpenDevice()
         return false;
     }
 
-    status = Vz_PCOpenDevice("./Alg_PCConfig_Exit.ini", &mExit);
+    status = Vz_PCOpenDevice("./Alg_PCConfig_Exit.json", &mExit);
     if (status != VzReturnStatus::VzRetOK)
     {
         if (VzReturnStatus::VzRetNoDeviceConnected == status)
@@ -331,7 +327,7 @@ void DualCamera::FusionPeopleInfo(const VzPeopleInfoCount& entrance, const VzPeo
     }
     else
     {
-        static const int FusionPeopleDistanceMax = 250;
+        static const int FusionPeopleDistanceMax = 450;
 
         for (vector<VzPeopleInfo>::iterator i = vectorEntranceToDo.begin(); i != vectorEntranceToDo.end(); ++i)
         {
@@ -339,7 +335,6 @@ void DualCamera::FusionPeopleInfo(const VzPeopleInfoCount& entrance, const VzPeo
             for (vector<VzPeopleInfo>::iterator j = vectorExitToDo.begin(); j != vectorExitToDo.end(); j++)
             {
                 int distance = cv::norm(cv::Point2f(i->worldPostion.x, i->worldPostion.y) - cv::Point2f(j->worldPostion.x, j->worldPostion.y));
-
                 if (FusionPeopleDistanceMax > distance)
                 {
                     isFoundfusionPeople = true;
@@ -389,7 +384,7 @@ void DualCamera::FusionPeopleInfo(const VzPeopleInfoCount& entrance, const VzPeo
 
 void DualCamera::UpdataContinueInfo(vector<VzPeopleInfoAndCount>& continuePeopleInfoV, vector<VzPeopleInfo> newPeopleInfoV)
 {
-    static const int cotiunedDistanceMax = 300;
+    static const int cotiunedDistanceMax = 450;
 
     for (vector<VzPeopleInfoAndCount>::iterator i = continuePeopleInfoV.begin(); i != continuePeopleInfoV.end(); )
     {
@@ -514,6 +509,37 @@ uint32_t DualCamera::RequestID()
 #endif
 
     uint32_t ret = id++;
+
+    return ret;
+}
+
+int GetMoveConfidenceFromConfig()
+{
+    const int defaultValue = 20;
+    int ret = defaultValue;
+
+    std::unique_ptr<JsonConfig> pConfig = std::make_unique<JsonConfig>();
+    if (1 == pConfig->Read("./Alg_PCConfig_Entrance.json"))
+    {
+        string detectionAccuracy = pConfig->GetValue("ALG", "DetectionAccuracy", "normal");
+        std::transform(detectionAccuracy.begin(), detectionAccuracy.end(), detectionAccuracy.begin(), ::tolower);
+        if (string("high") == detectionAccuracy)
+        {
+            ret = defaultValue;
+        }
+        else if (string("low") == detectionAccuracy)
+        {
+            ret = 8;
+        }
+        else if (string("undefined") == detectionAccuracy)
+        {
+            ret = pConfig->GetInt("ALG", "MoveConfidence", defaultValue);;
+        }
+        else //normal
+        {
+            ret = 15;
+        }
+    }
 
     return ret;
 }

@@ -41,7 +41,6 @@ OPEN:
     }
 
     VzPeopleInfoCount peopleInfoCount = { 0 };
-    cv::Mat imageMat;
     while (g_isRunning)
     {
 
@@ -208,13 +207,16 @@ void ShowInfo(const VzPeopleInfoCount& peopleInfoCount)
         {
 			Point headpoint = Point(peopleInfoCount.peopleInfo[i].pixelPostion.x, peopleInfoCount.peopleInfo[i].pixelPostion.y);
 
+            Scalar colorText = Scalar(0, 0, 255);
+            Scalar colorCircle = Scalar(255, 255, 255);
+
             memset(temp, BUFLEN, 0);
             snprintf(temp, BUFLEN, "ID:%X ", peopleInfoCount.peopleInfo[i].id);
             cv::putText(img, temp,
                 cv::Point(headpoint.x + 12, headpoint.y - 15),
                 cv::FONT_HERSHEY_SIMPLEX,
                 0.6,
-                Scalar(0, 0, 255),
+                colorText,
                 1,
                 9);
 
@@ -225,15 +227,13 @@ void ShowInfo(const VzPeopleInfoCount& peopleInfoCount)
                 cv::Point(headpoint.x + 12, headpoint.y - 35),
                 cv::FONT_HERSHEY_SIMPLEX,
                 0.6,
-                Scalar(0, 0, 255),
+                colorText,
                 1,
                 9);
 
-            cv::circle(img, headpoint, 11, Scalar(255, 255, 255), -1, 8);
+            cv::circle(img, headpoint, 11, colorCircle, -1, 8);
         }
         
         cv::imshow("img", img);
     }
-
-   
 }

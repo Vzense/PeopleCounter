@@ -15,4 +15,4 @@
    b.Please write the camera SN to the CameraAlias field of Alg_PCConfig_Entrance.ini and Alg_PCConfig_Exit.ini respectively.
 
    c.Run Tools/ DualCameraSample. exe to view the detection result
-
+4. The algorithm supports three kinds of detection accuracy:low, normal, high. It can be changed by modifying Alg_PCConfig/ALG/DetectionAccuracy in the config file.

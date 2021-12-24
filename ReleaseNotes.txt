@@ -1,4 +1,8 @@
-﻿V1.1.4
+﻿V1.1.6
+1.add the detection accuracy configuration item to the configuration file
+2.the configuration file format was changed from INI to JSON
+
+V1.1.4
 1.reduce false detection rate
 
 V1.1.2

@@ -162,13 +162,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cJSON.c" />
     <ClCompile Include="DualCamera.cpp" />
     <ClCompile Include="DualSample.cpp" />
-    <ClCompile Include="IniConfig.cpp" />
+    <ClCompile Include="JsonConfig.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cJSON.h" />
     <ClInclude Include="DualCamera.h" />
-    <ClInclude Include="IniConfig.h" />
+    <ClInclude Include="JsonConfig.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
