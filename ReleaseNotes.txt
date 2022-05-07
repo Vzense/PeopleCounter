@@ -1,4 +1,7 @@
-﻿V1.1.6
+﻿V1.1.7
+1.fix error when too much points in the contour
+
+V1.1.6
 1.add the detection accuracy configuration item to the configuration file
 2.the configuration file format was changed from INI to JSON
 
