@@ -232,6 +232,8 @@ void ShowInfo(const VzPeopleInfoCount& peopleInfoCount)
                 9);
 
             cv::circle(img, headpoint, 11, colorCircle, -1, 8);
+            cv::rectangle(img, cv::Point(peopleInfoCount.peopleInfo[i].topleft.x, peopleInfoCount.peopleInfo[i].topleft.y),
+                cv::Point(peopleInfoCount.peopleInfo[i].bottomright.x, peopleInfoCount.peopleInfo[i].bottomright.y), colorCircle, 2);
         }
         
         cv::imshow("img", img);

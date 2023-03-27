@@ -112,6 +112,8 @@ typedef struct
 {
     uint32_t id;
     Point2uint16 pixelPostion;  //Pixel coordinates of the center point of the head of the person identified from the image
+    Point2uint16 topleft;       //Pixel coordinates of the top left point of  the human tracking box
+    Point2uint16 bottomright;   //Pixel coordinates of the bottom right point of  the human tracking box
     Point3int16 worldPostion;   //Three dimensional coordinates of the center point of the head of the person identified from the image in the world coordinate system
                                 //The X-axis goes from the left side of the image to the right
                                 //The Y - axis goes from the top of the image to the bottom
@@ -123,6 +125,7 @@ typedef struct
     uint8_t reserved[2];
     
 } VzPeopleInfo;
+
 
 typedef struct
 {
