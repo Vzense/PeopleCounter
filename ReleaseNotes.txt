@@ -1,4 +1,10 @@
-﻿V1.1.8
+﻿V1.1.10
+1. add Vz_ConvertDepthToWorld and Vz_ConvertDepthFrameToWorldVector
+
+V1.1.9
+rename vzense_api.dll to camera_api.dll
+
+V1.1.8
 1.Add pixel coordinates for the body tracking box
 
 V1.1.7

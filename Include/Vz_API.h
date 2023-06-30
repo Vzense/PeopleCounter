@@ -67,4 +67,25 @@ VZENSE_C_API_EXPORT VzReturnStatus Vz_PCSetShowImg(const PeopleCountDeviceHandle
 */
 VZENSE_C_API_EXPORT VzReturnStatus Vz_PCSetSaveOfflineDataState(const PeopleCountDeviceHandler device, bool enable);
 
+/**
+* @brief 		Converts the input points from depth coordinate space to world coordinate space.
+* @param[in] 	device			The handle of the device on which to perform the operation.
+* @param[in] 	pDepthVector 	Pointer to a buffer containing the x, y, and z values of the depth coordinates to be converted. \n
+*      							 x and y are measured in pixels, where 0, 0 is located at the top left corner of the image. \n
+*	                            z is measured in millimeters, based on the ::PsPixelFormat depth frame.
+* @param[out] 	pWorldVector 	Pointer to a buffer in which to output the converted x, y, and z values of the world coordinates, measured in millimeters.
+* @param[in] 	pointCount 		The number of points to convert.
+* @return 		::PsRetOK		if the function succeeded, or one of the error values defined by ::PsReturnStatus.
+*/
+VZENSE_C_API_EXPORT VzReturnStatus Vz_ConvertDepthToWorld(const PeopleCountDeviceHandler device, const Point3int16* pDepthVector, Point3int16* pWorldVector, int32_t pointCount);
+
+/**
+* @brief 		Convert the depth frame to a point cloud.
+* @param[in]	deviceHandler:	    The handler of the device on which to get information about the person detected.
+* @param[in]	depthFrame:	        The depth frame that need to be converted to point clouds.
+* @param[out]	pWorldVector:	    Pointer to a buffer in which to output the converted x, y, and z values of the world coordinates, measured in millimeters. The size of the pWorldVector buffer must be depthFrame.width*depthFrame.height.
+* @return: 		::VzRetOK	        if the function succeeded, or one of the error values defined by ::VzReturnStatus.
+*/
+VZENSE_C_API_EXPORT VzReturnStatus Vz_ConvertDepthFrameToWorldVector(const PeopleCountDeviceHandler device, const VzPCFrame* pDepthFrame, Point3int16* pWorldVector);
+
 #endif //VPEOPLECOUNTAPI_H

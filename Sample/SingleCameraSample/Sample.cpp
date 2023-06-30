@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <opencv2/opencv.hpp>
 #include <thread>
 #include <stdio.h>
@@ -91,6 +92,35 @@ OPEN:
             Vz_PCSetSaveOfflineDataState(g_deviceHandle, isSavingImg);
         }
         break;
+        case 'P':
+        case 'p':
+            if (peopleInfoCount.frame.pFrameData != NULL)
+            {
+                ofstream PointCloudWriter;
+                PointCloudWriter.open("PointCloud.txt");
+                const int len = peopleInfoCount.frame.width * peopleInfoCount.frame.height;
+                Point3int16* pWorldV = new Point3int16[len];
+                Point3int16 center1 = { 0 };
+                Point3int16 center2 = { 0 };
+                Vz_ConvertDepthFrameToWorldVector(g_deviceHandle, &peopleInfoCount.frame, pWorldV); //Convert Depth frame to World vectors.
+                for (int i = 0; i < len; i++)
+                {
+                    if (pWorldV[i].z == 0)
+                        continue; //discard zero points
+                    PointCloudWriter << pWorldV[i].x << "\t" << pWorldV[i].y << "\t" << pWorldV[i].z << std::endl;
+                }
+                center1 = pWorldV[peopleInfoCount.frame.height / 2 * peopleInfoCount.frame.width + peopleInfoCount.frame.width / 2];
+                delete[] pWorldV;
+                pWorldV = NULL;
+
+                Point3int16 centerDepth = { peopleInfoCount.frame.width / 2, peopleInfoCount.frame.height / 2, ((uint16_t*)peopleInfoCount.frame.pFrameData)[peopleInfoCount.frame.height / 2 * peopleInfoCount.frame.width + peopleInfoCount.frame.width / 2]};
+                Vz_ConvertDepthToWorld(g_deviceHandle, &centerDepth, &center2, 1);
+
+                std::cout << "center point 1:"<< center1.x<<","<< center1.y << "," << center1.z << ", 2:"<< center2.x<<", "<< center2.y << ", " << center2.z<< std::endl;
+                std::cout << "Save point cloud successful in PointCloud.txt" << std::endl;
+                PointCloudWriter.close();
+            }
+            break;
         case 27: //ESC
             g_isRunning = false;
             break;
