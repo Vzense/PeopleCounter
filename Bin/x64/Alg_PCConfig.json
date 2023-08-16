@@ -1,8 +1,8 @@
  {
   "ALG": {
     "Camera_Height": 2400,
-    "HeadHeight_Down": 1100,
-    "HeadHeight_Top": 2300,
+    "HeadHeight_Down": 1200,
+    "HeadHeight_Top": 2100,
     "DetectionAccuracy": "normal",
     "BlockSize": 100,
     "InOutDirection": 0,
@@ -36,7 +36,8 @@
     "MoveDetectEnable": true,
     "MoveConfidence": 20,
     "MinMoveDistance": 0,
-    "MaxMoveDistance": 1000
+    "MaxMoveDistance": 1000,
+    "CenterZDiff":70
   },
   "SDK": {
     "OfflineSourceDir": "",

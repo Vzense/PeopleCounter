@@ -1,11 +1,14 @@
-﻿V1.1.10
+﻿V1.1.11
+1. optimize backpack error detection
+
+V1.1.10
 1. add Vz_ConvertDepthToWorld and Vz_ConvertDepthFrameToWorldVector
 
 V1.1.9
 rename vzense_api.dll to camera_api.dll
 
 V1.1.8
-1.Add pixel coordinates for the body tracking box
+1.add pixel coordinates for the body tracking box
 
 V1.1.7
 1.fix error when too much points in the contour
